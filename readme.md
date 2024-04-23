@@ -1,6 +1,6 @@
 # Hackathon SuperAI SS4 Image Captioning
-- Datasets
- - https://drive.google.com/file/d/1wz5s4FJYrT3CWDeDhS9WfzZD64cQtFf9/view?usp=sharing 
+
+## Linux init
 
 for linux users run init.sh for first time use
 for windows users run these commands manually:
@@ -14,3 +14,9 @@ mkdir / root/.kaggle/
 mkdir dataset
 
 then go download the dataset into /dataset
+
+## TODO
+
+1. Implement pipeline for fine-tuning YOLO on COCO images, and fine-tuning Text Translate in decoder part
+2. Fine-tuning YOLO on [Thai food (classification task)](https://github.com/chakkritte/THFOOD-50), Thai [FoodyDudy (classification task)](https://www.kaggle.com/datasets/somboonthamgemmy/foodydudy), and [Food-500 Cap (Food image-captioning)](https://github.com/aaronma2020/Food500-Cap)
+3. Classifier on what the dataset it is, to chose what model to use. (rounter)

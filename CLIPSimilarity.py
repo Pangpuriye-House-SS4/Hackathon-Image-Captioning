@@ -7,7 +7,7 @@ from sentence_transformers import SentenceTransformer, util
 from typing import List
 import numpy as np
 
-class CLIPSimilarity:  # implementation class for CLIP similarithy
+class CLIPSimilarity:  # implementation class for CLIP similarity TODO optimize alot of this
 
     model = CLIPModel.from_pretrained("openai/clip-vit-base-patch16")
     processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch16")

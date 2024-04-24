@@ -17,15 +17,17 @@ class CLIPSimilarity:  # implementation class for CLIP similarity TODO optimize 
     def similarityScore(array:pd.Series,cutoff:int,sentence=False, model=None, processor=None):
         
         if sentence:
-            return CLIPSimilarity._textSimilarity(array,cutoff)
-        else:
             return CLIPSimilarity._sentenceSimilarity(array, cutoff)
+        else:
+            return CLIPSimilarity._textSimilarity(array, cutoff)
+    
 
     @staticmethod
     def _textSimilarity(array: pd.Series, cutoff: int, model=None, processor=None):
         #TODO add memoization/pooling, use a more efficient datatype
-        
-
+        processor = CLIPSimilarity.processor
+        image = array[0]
+        text = list(array[1:])
         inputs = processor(text=text, images=image,
                            return_tensors="pt", padding=True)
         outputs = model(**inputs)
@@ -66,7 +68,6 @@ class CLIPSimilarity:  # implementation class for CLIP similarity TODO optimize 
         probs = np.array(torch.softmax(probs,0))
         out = [(probs[i], text[i]) for i in (range(len(text)))]
         out.sort(reverse=True)
-
         filteredOut = np.array(out[:cutoff]).T
 
         # TODO FUCKING DISGUSTING CODE FIX IT
@@ -80,5 +81,5 @@ if __name__=='__main__':#testing code please ignore #TODO fix this to be up to d
     text=[image,"a photo of two cats","cats on a couch","แมวนอนอยู่บนโซฟา","two cats","cats and remotes on a couch","dogs on a couch", "ปลาทูแม่กลอง" ]
 
     df = pd.DataFrame([text])
-    newdf = df.apply(CLIPSimilarity.similarityScore, args = (5,),axis = 1)
+    newdf = df.apply(CLIPSimilarity.similarityScore, args = (5,),axis = 1,sentence = False)
     newdf.head()

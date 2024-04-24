@@ -13,33 +13,36 @@ class CLIPSimilarity:  # implementation class for CLIP similarithy
     processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch16")
 
     @staticmethod
-    # # takes a PIL image and a list of text and outputs the softmax similarity for each entry of text
-    # def similarityScore(array:pd.Series,cutoff:int, model=None, processor=None):
-    #     #TODO add memoization/pooling, use a more efficient datatype
-    #     image = array[0]
-    #     text = list(array[1:])
-    #     if model == None:  # set params
-    #         model = CLIPSimilarity.model
-
-    #     if processor == None:
-    #         processor = CLIPSimilarity.processor
-
-    #     inputs = processor(text=text, images=image,
-    #                        return_tensors="pt", padding=True)
-    #     outputs = model(**inputs)
-
-    #     # this is the image-text similarity score
-    #     logits_per_image = outputs.logits_per_image
-    #     # we can take the softmax to get the label probabilities
-    #     probs = logits_per_image.softmax(dim=1).detach().numpy()[0]
-    #     out = [(probs[i], text[i]) for i in (range(len(text)))]
-    #     out.sort(reverse=True)
+    # takes a PIL image and a list of text and outputs the softmax similarity for each entry of text
+    def similarityScore(array:pd.Series,cutoff:int,sentence=False, model=None, processor=None):
         
-    #     filteredOut = np.array(out[:cutoff]).T
-        
-    #     return  pd.concat([pd.Series(filteredOut[0]),pd.Series(filteredOut[1])])#TODO FUCKING DISGUSTING CODE FIX IT
+        if sentence:
+            return CLIPSimilarity._textSimilarity(array,cutoff)
+        else:
+            return CLIPSimilarity._sentenceSimilarity(array, cutoff)
+
     @staticmethod
-    def similarityScore(array: pd.Series, cutoff: int, model=None, processor=None):
+    def _textSimilarity(array: pd.Series, cutoff: int, model=None, processor=None):
+        #TODO add memoization/pooling, use a more efficient datatype
+        
+
+        inputs = processor(text=text, images=image,
+                           return_tensors="pt", padding=True)
+        outputs = model(**inputs)
+
+        # this is the image-text similarity score
+        logits_per_image = outputs.logits_per_image
+        # we can take the softmax to get the label probabilities
+        probs = logits_per_image.softmax(dim=1).detach().numpy()[0]
+        out = [(probs[i], text[i]) for i in (range(len(text)))]
+        out.sort(reverse=True)
+        
+        filteredOut = np.array(out[:cutoff]).T
+        
+        return  pd.concat([pd.Series(filteredOut[0]),pd.Series(filteredOut[1])])#TODO FUCKING DISGUSTING CODE FIX IT
+    
+    @staticmethod
+    def _sentenceSimilarity(array: pd.Series, cutoff: int, model=None, processor=None):
         # TODO add memoization/pooling, use a more efficient datatype
         image = array[0]
         text = list(array[1:])

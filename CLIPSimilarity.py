@@ -12,33 +12,13 @@ class CLIPSimilarity:  # implementation class for CLIP similarithy
 
     model = CLIPModel.from_pretrained("openai/clip-vit-base-patch16")
     processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch16")
-
+    
     @staticmethod
-    # # takes a PIL image and a list of text and outputs the softmax similarity for each entry of text
-    # def similarityScore(array:pd.Series,cutoff:int, model=None, processor=None):
-    #     #TODO add memoization/pooling, use a more efficient datatype
-    #     image = array[0]
-    #     text = list(array[1:])
-    #     if model == None:  # set params
-    #         model = CLIPSimilarity.model
-    #     if processor == None:
-    #         processor = CLIPSimilarity.processor
-    #     inputs = processor(text=text, images=image,
-    #                        return_tensors="pt", padding=True)
-    #     outputs = model(**inputs)
-    #     # this is the image-text similarity score
-    #     logits_per_image = outputs.logits_per_image
-    #     # we can take the softmax to get the label probabilities
-    #     probs = logits_per_image.softmax(dim=1).detach().numpy()[0]
-    #     out = [(probs[i], text[i]) for i in (range(len(text)))]
-    #     out.sort(reverse=True)
-    #     filteredOut = np.array(out[:cutoff]).T
-    #     return  pd.concat([pd.Series(filteredOut[0]),pd.Series(filteredOut[1])])#TODO FUCKING DISGUSTING CODE FIX IT
-    @staticmethod
-    def similarityScore(array: pd.Series, cutoff: int, model=None, processor=None):
+    def similarityScore(array: pd.Series, cutoff: int, model=None, processor=None):#returns 2n concatenated pandas frame of caption and sim score
         # TODO add memoization/pooling, use a more efficient datatype
         image = array[0]
-        text = list(array[1:])
+        text = list(array[1])
+        print(text, 'text')
         if model == None:  # set params
             model = SentenceTransformer(
                 'sentence-transformers/clip-ViT-B-32-multilingual-v1')
@@ -58,23 +38,25 @@ class CLIPSimilarity:  # implementation class for CLIP similarithy
         probs = torch.tensor(logits_per_image)
         probs = np.array(probs)
         # probs = np.array(torch.softmax(probs, 0))
-        out = [(probs[i], text[i]) for i in (range(len(text)))]
-        out.sort(reverse=True)
+        out = (probs, text,image)
+        # out.sort(reverse=True)
 
-        filteredOut = np.array(out[:cutoff]).T
+        # filteredOut = np.array(out[:cutoff]).T
 
-        # TODO FUCKING DISGUSTING CODE FIX IT
-        return pd.concat([pd.Series(filteredOut[0]), pd.Series(filteredOut[1])])
+        # TODO FUCKING DISGUSTING CODE FIX IT 
+        # dont care lmao
+        return out
 
 
 if __name__ == '__main__':  # testing code please ignore #TODO fix this to be up to date
     url = "http://images.cocodataset.org/val2017/000000039769.jpg"
 
     image = Image.open(requests.get(url, stream=True).raw)
-    text = [image, "a photo of two cats", "cats on a couch", "แมวนอนอยู่บนโซฟา",
-            "two cats", "cats and remotes on a couch", "dogs on a couch", "ปลาทูแม่กลอง"]
-
+    text = [[image, "a photo of two cats"], #TODO Broken
+            [image, "a photo of two dogs"]]
+    
     df = pd.DataFrame([text])
+    print(df.head())
     newdf = df.apply(CLIPSimilarity.similarityScore, args=(5,), axis=1)
     
     print(newdf.head())
